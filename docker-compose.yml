@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  ubuntu1:
+    cap_add:
+      - SYS_ADMIN
+    # или:
+    # privileged: true
+    tmpfs:
+      - /mnt/pgdata_new:size=1G
+    image: master3
+    container_name: ubuntu1
+    networks:
+      - ubuntu_network
+    tty: true  # Keeps container running
+    command: tail -f /dev/null  # Keeps container running
+    depends_on:
+      - ubuntu2
+    ports:
+      - "8000:8000"  
+      - "5433:5432"  
+
+  ubuntu2:
+    cap_add:
+      - SYS_ADMIN
+    # или:
+    # privileged: true
+    tmpfs:
+      - /mnt/pgdata_new:size=1G
+    image: slave1
+    container_name: ubuntu2
+    networks:
+      - ubuntu_network
+    tty: true  # Keeps container running
+    command: tail -f /dev/null  # Keeps container running
+    ports:
+      - "8001:8000"  
+      - "5434:5432"  
+
+networks:
+  ubuntu_network:
+    driver: bridge
