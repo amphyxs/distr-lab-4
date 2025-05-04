@@ -8,6 +8,7 @@ apt update
 apt install -y postgresql
 su - postgres
 
+# Тут мб IP поменять на тот, что у контейнера слейва
 echo 'host replication postgres 172.27.0.2/32 md5' >> /etc/postgresql/14/main/pg_hba.conf 
 echo 'host all all 172.27.0.1/32 md5' >> /etc/postgresql/14/main/pg_hba.conf 
 cat >> /etc/postgresql/14/main/postgresql.conf <<EOF
@@ -41,6 +42,7 @@ psql -c "INSERT INTO test_table2 (name, age) VALUES ('kkk', 3), ('aaa', 76), ('b
 # Этап 2.2. Сбой
 # ===========================
 
+# Это всё раньше, чем у слейва вводить
 mkdir -p /mnt/pgdata_new
 mount -t tmpfs -o size=1G tmpfs /mnt/pgdata_new
 

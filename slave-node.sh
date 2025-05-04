@@ -24,6 +24,7 @@ rm -rf ~/14/main/
 mkdir ~/14/main/
 chmod go-rwx ~/14/main/
 
+# Это после того, как у хозяина всё готово
 pg_basebackup -P -R -X stream -c fast -h 172.27.0.3 -U postgres -D ~/14/main
 
 service postgresql start
@@ -32,6 +33,7 @@ service postgresql start
 # Этап 2.1. Подготовка данных
 # ===========================
 
+# Тут чекать, когда мастер себе данные зафигачит
 # assert replication
 psql -c "SELECT sender_host, status FROM pg_stat_wal_receiver;"
 # assert tables
@@ -46,6 +48,7 @@ INT);"
 # Этап 2.2. Сбой
 # ===========================
 
+# Это после того, как сделаем сбой на хозяине
 su - postgres
 pg_ctlcluster 14 main promote
 
@@ -54,4 +57,3 @@ psql -U postgres -c "SELECT pg_is_in_recovery();"
 
 echo 'host all all 172.27.0.1/32 md5' >> /etc/postgresql/14/main/pg_hba.conf
 service postgresql restart
-
