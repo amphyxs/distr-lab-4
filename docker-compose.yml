@@ -8,7 +8,7 @@ services:
     # privileged: true
     tmpfs:
       - /mnt/pgdata_new:size=1G
-    image: master3
+    image: master-after-no-space
     container_name: ubuntu1
     networks:
       - ubuntu_network
@@ -27,7 +27,7 @@ services:
     # privileged: true
     tmpfs:
       - /mnt/pgdata_new:size=1G
-    image: slave1
+    image: slave-after-no-space
     container_name: ubuntu2
     networks:
       - ubuntu_network

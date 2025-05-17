@@ -49,7 +49,7 @@ mount -t tmpfs -o size=1G tmpfs /mnt/pgdata_new
 pg_ctlcluster 14 main stop
 
 rsync -av /var/lib/postgresql/14/main/ /mnt/pgdata_new/
-cp -r /mnt/pgdata_new/main/* /mnt/pgdata_new/
+# cp -r /mnt/pgdata_new/main/* /mnt/pgdata_new/
 chown -R postgres:postgres /mnt/pgdata_new/
 chmod -R 700 /mnt/pgdata_new/
 
@@ -63,3 +63,27 @@ cat /var/log/postgresql/postgresql-14-main.log | grep -i "disk full\|space\|no s
 
 pg_ctlcluster 14 main stop
 
+# ===========================
+# Этап 3
+# ===========================
+
+rm /mnt/pgdata_new/fillfile
+
+pg_ctlcluster 14 main stop
+
+rm -rf /mnt/pgdata_new/*
+
+# Тут поднять кластер на slave не забыть
+pg_basebackup -P -R -X stream -c fast -h 172.27.0.2 -U postgres -D /mnt/pgdata_new
+
+chown -R postgres:postgres /mnt/pgdata_new
+chmod 700 /mnt/pgdata_new
+
+touch /mnt/pgdata_new/standby.signal
+
+cat >> /etc/postgresql/14/main/postgresql.conf <<EOF
+primary_conninfo = 'host=172.27.0.2 port=5432 user=postgres password=postgres'
+EOF
+
+pg_ctlcluster 14 main start
+pg_ctlcluster 14 main promote

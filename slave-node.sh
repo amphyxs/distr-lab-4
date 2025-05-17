@@ -57,3 +57,22 @@ psql -U postgres -c "SELECT pg_is_in_recovery();"
 
 echo 'host all all 172.27.0.1/32 md5' >> /etc/postgresql/14/main/pg_hba.conf
 service postgresql restart
+
+
+# ===========================
+# Этап 3
+# ===========================
+
+# Это после восстановления на хозяине
+pg_ctlcluster 14 main stop
+
+rm -rf /var/lib/postgresql/14/main/*
+
+pg_basebackup -P -R -X stream -c fast -h 172.27.0.3 -U postgres -D /var/lib/postgresql/14/main
+
+chown -R postgres:postgres /var/lib/postgresql/14/main
+chmod 700 /var/lib/postgresql/14/main
+
+rm -f /var/lib/postgresql/14/main/recovery.conf
+
+pg_ctlcluster 14 main start
